@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-class Post extends Component {
+class PostOverview extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -24,6 +24,17 @@ class Post extends Component {
     }
 }
 
+class Comments extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            postId: props.value._id,
+            user: props.value.user,
+            body: props.value.body
+        };
+    }
+}
+
 class Blog extends Component {
     constructor(props) {
         super(props);
@@ -35,7 +46,7 @@ class Blog extends Component {
     }
 
     componentDidMount() {
-        fetch("http://localhost:5000/posts").then(
+        fetch("https://ethanwang-backend.herokuapp.com/posts").then(
             res => res.json()
         ).then(
             (result) => {
@@ -54,12 +65,7 @@ class Blog extends Component {
     }
 
     render() {
-        const { error, isLoaded } = this.state;
-
-        console.log(this.state.posts);
-        let postHTML = this.state.posts.map(post =>
-            <Post key={post._id} value={post} />
-        );
+        const { error, isLoaded, posts } = this.state;
 
         if (error) {
             return <div>Error: {error.message}</div>;
@@ -68,7 +74,11 @@ class Blog extends Component {
             return <div>Loading...</div>;
         }
             
-        return postHTML;
+        return (
+            posts.map(post =>
+                <PostOverview key={post._id} value={post} />
+            )
+        );
     }
 }
 
