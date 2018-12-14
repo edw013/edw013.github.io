@@ -75,6 +75,8 @@ class Post extends Component {
                 <p>{data.body}</p>
                 <p>Posted on: {data.date}</p>
                 <hr />
+                <CommentForm value={id} />
+                <hr />
                 <Comments value={id} />
             </div>
         );
@@ -178,6 +180,52 @@ class Comments extends Component {
                     <p>Posted on: {comment.date}</p>
                 </div>
             )
+        );
+    }
+}
+
+class CommentForm extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            postId: props.value,
+            body: ""
+        };
+
+        this.handleChangeField = this.handleChangeField.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChangeField(key, event) {
+        this.setState({
+            [key]: event.target.value
+        });
+    }
+
+    handleSubmit() {
+        const { postId, body } = this.state;
+
+        axios.post(POSTS_URL + "/" + postId + "/comments/new", {
+            body: body
+        })
+        .then(res => {
+                this.setState({ body: "" });
+            }
+        )
+        .catch(err => console.log(err));
+    }
+
+    render() {
+        const { body } = this.state;
+
+        return (
+            <div>
+                <textarea value={body}
+                    onChange={ev => this.handleChangeField("body", ev)}
+                    placeholder="Comment Body"
+                />
+                <button onClick={this.handleSubmit}>Submit</button>
+            </div>
         );
     }
 }
