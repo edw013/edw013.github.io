@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter, Link, Switch, Route } from "react-router-dom";
-import Blog from "./Blog";
-import About from "./About";
+import Blog, { BlogPost } from "./Blog";
+import { Welcome, About } from "./About";
 
 class App extends Component {
   render() {
@@ -13,8 +13,10 @@ class App extends Component {
           <Link to="/about/">About</Link>
 
           <Switch>
+            <Route exact path="/" component={Welcome} />
             <Route exact path="/blog/" component={Blog} />
             <Route exact path="/about/" component={About} />
+            <Route path="/blog/posts/:id" component={BlogPost} />
           </Switch>
         </div>
       </BrowserRouter>
