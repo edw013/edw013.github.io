@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
+import axios from "axios";
+
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const POSTS_URL = "https://ethanwang-backend.herokuapp.com/posts";
 
@@ -40,22 +43,20 @@ class Post extends Component {
     }
 
     componentDidMount() {
-        fetch(POSTS_URL + "/" + this.state.id).then(
-            res => res.json()
-        ).then(
-            (result) => {
+        axios.get(POSTS_URL + "/" + this.state.id)
+        .then(res => {
                 this.setState({
                     isLoaded: true,
-                    data: result
+                    data: res.data
                 });
             },
-            (error) => {
-                this.setState({
-                    isLoaded: true,
-                    error
-                });
-            }
-        );
+        )
+        .catch(err => {
+            this.setState({
+                isLoaded: true,
+                error: err.response.data
+            })
+        });
     }
 
     render() {
@@ -80,6 +81,57 @@ class Post extends Component {
     }
 }
 
+class PostForm extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            title: "",
+            body: ""
+        };
+
+        this.handleChangeField = this.handleChangeField.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChangeField(key, event) {
+        this.setState({
+            [key]: event.target.value
+        });
+    }
+
+    handleSubmit() {
+        const { title, body } = this.state;
+
+        axios.post(POSTS_URL + "/new", {
+            title: title,
+            body: body
+        })
+        .then(res => {
+                this.props.history.push("/blog/posts/" + res.data.id);
+            }
+        )
+        .catch(err => console.error(err));
+    }
+
+    render() {
+        const { title, body } = this.state;
+
+        return (
+            <div>
+                <input value={title}
+                    onChange={ev => this.handleChangeField("title", ev)}
+                    placeholder="Post Title"
+                />
+                <textarea value={body}
+                    onChange={ev => this.handleChangeField("body", ev)}
+                    placeholder="Post Body"
+                />
+                <button onClick={this.handleSubmit}>Submit</button>
+            </div>
+        );
+    }
+}
+
 class Comments extends Component {
     constructor(props) {
         super(props);
@@ -92,19 +144,18 @@ class Comments extends Component {
     }
 
     componentDidMount() {
-        fetch(POSTS_URL + "/" + this.state.postId + "/comments").then(
-            res => res.json()
-        ).then(
-            (result) => {
+        axios.get(POSTS_URL + "/" + this.state.postId + "/comments")
+        .then(res => {
                 this.setState({
                     isLoaded: true,
-                    comments: result.comments
+                    comments: res.data.comments
                 });
-            },
-            (error) => {
+            }
+        )
+        .catch(err => {
                 this.setState({
                     isLoaded: true,
-                    error
+                    error: err.response.data
                 });
             }
         );
@@ -142,19 +193,18 @@ class Blog extends Component {
     }
 
     componentDidMount() {
-        fetch(POSTS_URL).then(
-            res => res.json()
-        ).then(
-            (result) => {
+        axios.get(POSTS_URL)
+        .then(res => {
                 this.setState({
                     isLoaded: true,
-                    posts: result.posts
+                    posts: res.data.posts
                 });
-            },
-            (error) => {
+            }
+        )
+        .catch(err => {
                 this.setState({
                     isLoaded: true,
-                    error
+                    error: err.response.data
                 });
             }
         );
@@ -180,3 +230,4 @@ class Blog extends Component {
 
 export default Blog;
 export const BlogPost = withRouter(Post);
+export const BlogNew = withRouter(PostForm);
