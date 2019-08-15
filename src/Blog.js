@@ -14,18 +14,16 @@ class PostOverview extends Component {
             title: props.value.title,
             body: props.value.body,
             date: props.value.date,
-            lastUpdate: props.value.lastUpdate,
-            numComments: props.value.numComments
+            lastUpdate: props.value.lastUpdate
         };
     }
 
     render() {
         return (
             <div>
-                <Link to={"/blog/posts/"+this.state.id}><h1>{this.state.title}</h1></Link>
+                <Link to={"/blog/"+this.state.id}><h1>{this.state.title}</h1></Link>
                 <p>{this.state.body}</p>
                 <p>Posted on: {this.state.date}</p>
-                <p>Comments: {this.state.numComments}</p>
             </div>
         );
     }
@@ -60,13 +58,13 @@ class Post extends Component {
     }
 
     render() {
-        const { id, error, isLoaded, data } = this.state;
+        const { error, isLoaded, data } = this.state;
 
         if (error) {
             return <div>Error: {error.message}</div>;
         }
         if (!isLoaded) {
-            return <div>Loading...</div>;
+            return <div>Loading... (if it's slow, blame Heroku free tier)</div>;
         }
             
         return (
@@ -74,16 +72,12 @@ class Post extends Component {
                 <h1>{data.title}</h1>
                 <p>{data.body}</p>
                 <p>Posted on: {data.date}</p>
-                <hr />
-                <CommentForm value={id} />
-                <hr />
-                <Comments value={id} />
             </div>
         );
     }
 }
 
-class PostForm extends Component {
+/* class PostForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -228,7 +222,7 @@ class CommentForm extends Component {
             </div>
         );
     }
-}
+} */
 
 class Blog extends Component {
     constructor(props) {
@@ -265,7 +259,7 @@ class Blog extends Component {
             return <div>Error: {error.message}</div>;
         }
         if (!isLoaded) {
-            return <div>Loading...</div>;
+            return <div>Loading... (if it's slow, blame Heroku free tier)</div>;
         }
             
         return (
@@ -278,4 +272,3 @@ class Blog extends Component {
 
 export default Blog;
 export const BlogPost = withRouter(Post);
-export const BlogNew = withRouter(PostForm);
