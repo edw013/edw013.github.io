@@ -6,6 +6,8 @@ axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const POSTS_URL = "https://ethanwang-backend.herokuapp.com/posts";
 
+const LOADING = "loading... shoutout heroku free tier!!"
+
 class PostOverview extends Component {
     constructor(props) {
         super(props);
@@ -64,7 +66,7 @@ class Post extends Component {
             return <div>Error: {error.message}</div>;
         }
         if (!isLoaded) {
-            return <div>Loading... (if it's slow, blame Heroku free tier)</div>;
+            return <div>{LOADING}</div>;
         }
             
         return (
@@ -259,7 +261,7 @@ class Blog extends Component {
             return <div>Error: {error.message}</div>;
         }
         if (!isLoaded) {
-            return <div>Loading... (if it's slow, blame Heroku free tier)</div>;
+            return <div>{LOADING}</div>;
         }
             
         return (
