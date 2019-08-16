@@ -13,7 +13,7 @@ class App extends Component {
                 <div>
                     <Navbar bg="light" expand="lg" sticky="top">
                         <Navbar.Brand>ew.</Navbar.Brand>
-                        <Nav.Link href="/">Home</Nav.Link>
+                        <Nav.Link href="#/">Home</Nav.Link>
                         <Nav.Link href="#/blog">Blog</Nav.Link>
                     </Navbar>
 
