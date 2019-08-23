@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, withRouter } from "react-router-dom";
+import { Card } from "react-bootstrap";
 import axios from "axios";
 
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -21,17 +21,24 @@ class PostOverview extends Component {
     }
 
     render() {
+        // <Link to={"/blog/"+this.state.id}><h1>{this.state.title}</h1></Link>
+        const cardStyle = {
+            "marginBottom": "10px"
+        }
+
         return (
-            <div>
-                <Link to={"/blog/"+this.state.id}><h1>{this.state.title}</h1></Link>
-                <p>{this.state.body}</p>
-                <p>Posted on: {this.state.date}</p>
-            </div>
+            <Card style={cardStyle}>
+                <Card.Body>
+                    <Card.Title>{this.state.title}</Card.Title>
+                    <Card.Text>{this.state.body}</Card.Text>
+                </Card.Body>
+                <Card.Footer className="text-muted">{this.state.date}</Card.Footer>
+            </Card>
         );
     }
 }
 
-class Post extends Component {
+/* class Post extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -79,7 +86,7 @@ class Post extends Component {
     }
 }
 
-/* class PostForm extends Component {
+class PostForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -258,10 +265,14 @@ class Blog extends Component {
         const { error, isLoaded, posts } = this.state;
 
         if (error) {
-            return <div>Error: {error.message}</div>;
+            return <div>Error: {error}</div>;
         }
         if (!isLoaded) {
-            return <div>{LOADING}</div>;
+            return (
+                <div>
+                    {LOADING}
+                </div>
+            );
         }
             
         return (
@@ -273,4 +284,4 @@ class Blog extends Component {
 }
 
 export default Blog;
-export const BlogPost = withRouter(Post);
+// export const BlogPost = withRouter(Post);

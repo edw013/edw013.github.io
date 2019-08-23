@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { HashRouter, Switch, Route } from "react-router-dom";
-import Blog, { BlogPost } from "./Blog";
+import Blog from "./Blog";
 import { Home } from "./Home";
 import { Navbar, Nav } from "react-bootstrap";
 
@@ -8,18 +8,19 @@ class App extends Component {
     render() {
         const bodyContainer = {
             "width": "70%",
-            "margin-left": "15%",
-            "margin-right": "15%",
-            "margin-top": "2%"
+            "marginLeft": "15%",
+            "marginRight": "15%",
+            "marginTop": "2%"
         }
 
         const navContainer = {
             "width": "70%",
-            "margin-left": "15%",
-            "margin-right": "15%",
+            "marginLeft": "15%",
+            "marginRight": "15%",
             "display": "flex"
         }
 
+        // <Route exact path="/blog/:id" component={BlogPost} />
         return (
             <HashRouter basename="/">
                 <div>
@@ -35,7 +36,6 @@ class App extends Component {
                         <Switch>
                             <Route exact path="/" component={Home} />
                             <Route exact path="/blog/" component={Blog} />
-                            <Route exact path="/blog/:id" component={BlogPost} />
                         </Switch>
                     </div>
                 </div>
