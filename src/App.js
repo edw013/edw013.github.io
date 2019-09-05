@@ -28,6 +28,7 @@ class App extends Component {
                             <Navbar.Brand>ew.</Navbar.Brand>
                             <Nav.Link href="#/">Home</Nav.Link>
                             <Nav.Link href="#/blog">Blog</Nav.Link>
+                            <Nav.Link href={process.env.PUBLIC_URL + "/Resume.pdf"} target="_blank">Resume</Nav.Link>
                         </div>
                     </Navbar>
 
