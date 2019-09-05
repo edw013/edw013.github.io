@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { HashRouter, Switch, Route } from "react-router-dom";
-import Blog from "./Blog";
+import Blog, { BlogPost } from "./Blog";
 import { Home } from "./Home";
 import { Navbar, Nav } from "react-bootstrap";
 
@@ -20,7 +20,6 @@ class App extends Component {
             "display": "flex"
         }
 
-        // <Route exact path="/blog/:id" component={BlogPost} />
         return (
             <HashRouter basename="/">
                 <div>
@@ -36,6 +35,7 @@ class App extends Component {
                         <Switch>
                             <Route exact path="/" component={Home} />
                             <Route exact path="/blog/" component={Blog} />
+                            <Route exact path="/blog/:id" component={BlogPost} />
                         </Switch>
                     </div>
                 </div>

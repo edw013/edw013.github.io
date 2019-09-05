@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link, withRouter } from "react-router-dom";
 import { Card } from "react-bootstrap";
 import axios from "axios";
 
@@ -14,31 +15,34 @@ class PostOverview extends Component {
         this.state = {
             id: props.value._id,
             title: props.value.title,
-            body: props.value.body,
+            preview: props.value.preview,
             date: props.value.date,
             lastUpdate: props.value.lastUpdate
         };
     }
 
     render() {
-        // <Link to={"/blog/"+this.state.id}><h1>{this.state.title}</h1></Link>
         const cardStyle = {
             "marginBottom": "10px"
         }
 
+        const date = new Date(this.state.date);
+
         return (
             <Card style={cardStyle}>
                 <Card.Body>
-                    <Card.Title>{this.state.title}</Card.Title>
-                    <Card.Text>{this.state.body}</Card.Text>
+                    <Link to={"/blog/"+this.state.id}>
+                        <Card.Title>{this.state.title}</Card.Title>
+                    </Link>
+                    <Card.Text>{this.state.preview}</Card.Text>
                 </Card.Body>
-                <Card.Footer className="text-muted">{this.state.date}</Card.Footer>
+                <Card.Footer className="text-muted">{date.toString()}</Card.Footer>
             </Card>
         );
     }
 }
 
-/* class Post extends Component {
+class Post extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -75,18 +79,20 @@ class PostOverview extends Component {
         if (!isLoaded) {
             return <div>{LOADING}</div>;
         }
-            
+        
+        const date = new Date(data.date);
+
         return (
             <div>
                 <h1>{data.title}</h1>
                 <p>{data.body}</p>
-                <p>Posted on: {data.date}</p>
+                <p>{date.toString()}</p>
             </div>
         );
     }
 }
 
-class PostForm extends Component {
+/* class PostForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -284,4 +290,4 @@ class Blog extends Component {
 }
 
 export default Blog;
-// export const BlogPost = withRouter(Post);
+export const BlogPost = withRouter(Post);
