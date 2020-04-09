@@ -22,6 +22,46 @@
   color: #61dafb;
 }
 
+.navBar-style {
+  background-color: #faf2ff;
+  box-shadow: 0 4px 4px -4px rgba(0,0,0,.5);
+  padding: 0;
+}
+
+a {
+  color: #575757;
+}
+
+.navContainer-style {
+  width: 70%;
+  margin-left: 15%;
+  margin-right: 15%;
+  display: flex;
+}
+
+.navBrand-style {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.navLink-style {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.navLink-style:hover {
+  background-color: #dad3de;
+  color: #000000;
+}
+
+.bodyContainer-style {
+  width: 70%;
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 2%;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

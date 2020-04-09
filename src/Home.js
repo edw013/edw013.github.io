@@ -1,17 +1,14 @@
 import React, { Component } from "react";
+import "./Home.css";
 
 class Home extends Component {
     render() {
-        let headshotStyle = {
-            "width": "20%"
-        };
-
         return (
             <div>
-                <img src={process.env.PUBLIC_URL + "/ethan.jpg"} alt="Ethan" style={headshotStyle} />
+                <img className="headshot-style" src={process.env.PUBLIC_URL + "/ethan.jpg"} alt="Ethan" />
                 <h1>Ethan Wang</h1>
                 <h3>About</h3>
-                <p>I'm a computer science major at UC San Diego.</p>
+                <p>I'm a recent graduate from UC San Diego with a bachelor's in computer science.</p>
             </div>
         )
     }
