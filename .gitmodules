@@ -1,0 +1,3 @@
+[submodule "tft-flowchart"]
+	path = tft-flowchart
+	url = git@github.com:edw013/tft-flowchart.git
