@@ -1050,6 +1050,7 @@
     if (!validate()) return;
     activeTab = "normal";
     renderResults();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   buildPlayerRows();
