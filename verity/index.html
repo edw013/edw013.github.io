@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+<title>Trio Verity Passing Solver</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #F2F4F5;
+    --surface: #FFFFFF;
+    --surface-alt: #E7EBEC;
+    --border: #D3D9DB;
+    --text: #1B2226;
+    --text-muted: #5B6A70;
+    --accent: #3B4C86;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #E4E7F3;
+    --good: #3E8E5B;
+    --good-soft: #E1F0E5;
+    --bad: #B23A31;
+    --bad-soft: #FBE7E5;
+    --tri: #B0631F;
+    --tri-soft: #F3E4D3;
+    --sq: #7A4FA3;
+    --sq-soft: #EDE3F4;
+    --ci: #1E8C82;
+    --ci-soft: #DFF0EE;
+    --shadow: 0 1px 2px rgba(20, 24, 27, 0.06), 0 4px 14px rgba(20, 24, 27, 0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181B;
+      --surface: #1C2226;
+      --surface-alt: #232B2F;
+      --border: #333E43;
+      --text: #E7EDEF;
+      --text-muted: #9AACB1;
+      --accent: #8A9AE8;
+      --accent-ink: #12151E;
+      --accent-soft: #2A2F49;
+      --good: #5FBE82;
+      --good-soft: #1C3327;
+      --bad: #E2685D;
+      --bad-soft: #3A211F;
+      --tri: #E2954C;
+      --tri-soft: #3A2C1B;
+      --sq: #B98CE0;
+      --sq-soft: #2E2540;
+      --ci: #49BBAF;
+      --ci-soft: #16332E;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181B;
+    --surface: #1C2226;
+    --surface-alt: #232B2F;
+    --border: #333E43;
+    --text: #E7EDEF;
+    --text-muted: #9AACB1;
+    --accent: #8A9AE8;
+    --accent-ink: #12151E;
+    --accent-soft: #2A2F49;
+    --good: #5FBE82;
+    --good-soft: #1C3327;
+    --bad: #E2685D;
+    --bad-soft: #3A211F;
+    --tri: #E2954C;
+    --tri-soft: #3A2C1B;
+    --sq: #B98CE0;
+    --sq-soft: #2E2540;
+    --ci: #49BBAF;
+    --ci-soft: #16332E;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  h1, h2, h3 { text-wrap: balance; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 64px;
+  }
+
+  header.app-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  header.app-header h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  header.app-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    max-width: 46ch;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 400px) 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .panel h2 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin: 0 0 12px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+  .row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .row:last-child { margin-bottom: 0; }
+  .row label {
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  input[type="text"], select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 9px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  input[type="text"]:focus, select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .room-btn-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .room-btn-block:last-child { margin-bottom: 0; }
+  .room-btn-block .room-btn-label {
+    width: 52px;
+    flex: none;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1;
+  }
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.2;
+  }
+  .pill-btn .role-hint {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 11px;
+  }
+  .pill-btn:hover:not(:disabled):not(.active) { background: var(--surface-alt); }
+  .pill-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pill-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .pill-btn.active {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .pill-btn.active .role-hint { color: var(--accent-ink); opacity: 0.8; }
+  .pill-btn.shape-btn svg { width: 11px; height: 11px; }
+  .pill-btn.shape-btn.T.active { background: var(--tri-soft); color: var(--tri); border-color: var(--tri); }
+  .pill-btn.shape-btn.S.active { background: var(--sq-soft); color: var(--sq); border-color: var(--sq); }
+  .pill-btn.shape-btn.C.active { background: var(--ci-soft); color: var(--ci); border-color: var(--ci); }
+
+  .init-shape-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .init-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .init-fixed-wrap, .init-second-wrap { display: flex; flex-direction: column; }
+  .shape-chip.locked {
+    border: 1px dashed currentColor;
+    background: transparent;
+  }
+
+  .room-block {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background: var(--surface-alt);
+  }
+  .room-block:last-child { margin-bottom: 0; }
+  .room-block .room-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .room-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+  }
+
+  .shape-pair {
+    display: flex;
+    gap: 8px;
+  }
+  .shape-pair select { flex: 1; }
+
+  fieldset { border: none; padding: 0; margin: 0; }
+
+  .validation {
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .validation.ok { background: var(--good-soft); color: var(--good); }
+  .validation.err { background: var(--bad-soft); color: var(--bad); }
+  .validation ul { margin: 4px 0 0; padding-left: 18px; }
+  .validation .icon { flex: none; margin-top: 1px; }
+
+  button.generate {
+    width: 100%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  button.generate:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  button.generate:not(:disabled):hover { opacity: 0.92; }
+  button.generate:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  .results-empty {
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13.5px;
+  }
+
+  .recap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 620px) { .recap { grid-template-columns: 1fr; } }
+  .recap .room-card {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 10px;
+  }
+  .recap .room-card .rname { font-weight: 600; font-size: 13.5px; }
+  .recap .room-card .rmeta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .recap .room-card .rname .role-tag {
+    display: inline-block;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--accent);
+    margin-left: 6px;
+  }
+  .recap .room-card .rshapes { margin-top: 5px; display: flex; gap: 4px; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .tab-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .tab-note {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: -6px 0 14px;
+  }
+
+  .timeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 18px 20px 20px;
+  }
+  .step {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    padding: 10px 0 10px 4px;
+  }
+  .step .rail {
+    flex: none;
+    width: 22px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+  .step .rail::before {
+    content: "";
+    position: absolute;
+    top: -10px; bottom: -10px;
+    width: 2px;
+    background: var(--border);
+  }
+  .step:first-child .rail::before { top: 50%; }
+  .step:last-child .rail::before { bottom: 50%; }
+  .step .dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+    border: 2px solid var(--surface);
+  }
+  .step .body {
+    flex: 1;
+    padding-top: 1px;
+  }
+  .step .step-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .step .step-text {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+  .step .step-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+  .shape-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px 1px 4px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: "IBM Plex Sans", sans-serif;
+  }
+  .shape-chip.T { background: var(--tri-soft); color: var(--tri); }
+  .shape-chip.S { background: var(--sq-soft); color: var(--sq); }
+  .shape-chip.C { background: var(--ci-soft); color: var(--ci); }
+  .shape-chip svg { width: 10px; height: 10px; }
+
+  .break-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 4px -4px;
+    padding-left: 4px;
+  }
+  .break-row .rail { flex: none; width: 22px; display:flex; justify-content:center; position:relative; }
+  .break-row .rail::before { content:""; position:absolute; top:-10px; bottom:-10px; width:2px; background: var(--border); }
+  .break-row .diamond {
+    width: 9px; height: 9px;
+    background: var(--bad);
+    transform: rotate(45deg);
+    z-index: 1;
+    border: 2px solid var(--surface);
+  }
+  .break-row .break-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bad);
+    background: var(--bad-soft);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .break-row.late .diamond { background: var(--tri); }
+  .break-row.late .break-label { color: var(--tri); background: var(--tri-soft); }
+
+  .final-state {
+    margin-top: 6px;
+    border-top: 1px dashed var(--border);
+    padding-top: 14px;
+  }
+  .final-state .fs-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .final-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 620px) { .final-grid { grid-template-columns: 1fr; } }
+  .final-grid .fcard {
+    background: var(--surface-alt);
+    border-radius: 8px;
+    padding: 9px 10px;
+  }
+  .final-grid .fcard .fname { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+  .final-grid .fcard .fshapes { display: flex; gap: 4px; }
+
+  footer.note {
+    margin-top: 28px;
+    font-size: 12px;
+    color: var(--text-muted);
+    max-width: 70ch;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="app-header">
+    <h1>Trio Verity Passing Solver</h1>
+    <p>Set up the encounter and get the distributor's exact send order &mdash; including when the Witness phase lands.</p>
+  </header>
+
+  <div class="layout">
+    <div class="setup-col">
+
+      <div class="panel">
+        <h2>Players &amp; Roles</h2>
+        <div id="player-rows"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Rooms</h2>
+        <div class="room-btn-block">
+          <div class="room-btn-label">Left</div>
+          <div class="btn-group" id="room-btns-Left"></div>
+        </div>
+        <div class="room-btn-block">
+          <div class="room-btn-label">Middle</div>
+          <div class="btn-group" id="room-btns-Middle"></div>
+        </div>
+        <div class="room-btn-block">
+          <div class="room-btn-label">Right</div>
+          <div class="btn-group" id="room-btns-Right"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Room shape assignment</h2>
+        <div class="room-btn-block">
+          <div class="room-btn-label">Left</div>
+          <div class="btn-group" id="key-btns-Left"></div>
+        </div>
+        <div class="room-btn-block">
+          <div class="room-btn-label">Middle</div>
+          <div class="btn-group" id="key-btns-Middle"></div>
+        </div>
+        <div class="room-btn-block">
+          <div class="room-btn-label">Right</div>
+          <div class="btn-group" id="key-btns-Right"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Initial shapes per room</h2>
+        <div id="initial-rooms"></div>
+      </div>
+
+      <div id="validation-box"></div>
+      <button class="generate" id="generate-btn" disabled>Generate flowchart</button>
+    </div>
+
+    <div class="results-col" id="results-col">
+      <div class="results-empty">Fill in the setup on the left. Once everything checks out, this panel will show the distributor's full send sequence.</div>
+    </div>
+  </div>
+
+  <footer class="note">
+    <strong>How the branch is chosen:</strong> the solver computes the standard base passing plan for the initial shape pattern, then checks whether the distributor's own sends and the rejoiner's forwarded shape(s) both touch the dissector's room. If so, Normal and Late are genuinely different (the witness marker just moves later). If only one of those ever touches the dissector's room, Normal and Late land identically&mdash;shown with a note. If neither does (the rejoiner's shapes are already the distributor's key), Late requires the distributor to send a spare shape to the dissector purely to trigger it, which the dissector then returns.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SHAPES = [
+    { code: "T", name: "Triangle" },
+    { code: "S", name: "Square" },
+    { code: "C", name: "Circle" }
+  ];
+  var SHAPE_ORDER = { T: 0, S: 1, C: 2 };
+  var ROOMS = ["Left", "Middle", "Right"];
+  var ROLES = ["distributor", "dissector", "rejoiner"];
+
+  function shapeName(code) {
+    return SHAPES.filter(function (s) { return s.code === code; })[0].name;
+  }
+
+  function shapeIcon(code) {
+    if (code === "T") return '<svg viewBox="0 0 10 10"><polygon points="5,0.5 9.5,9.5 0.5,9.5" fill="currentColor"/></svg>';
+    if (code === "S") return '<svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="currentColor"/></svg>';
+    return '<svg viewBox="0 0 10 10"><circle cx="5" cy="5" r="4.5" fill="currentColor"/></svg>';
+  }
+
+  function shapeChip(code) {
+    return '<span class="shape-chip ' + code + '">' + shapeIcon(code) + shapeName(code) + '</span>';
+  }
+
+  function shapeChips(codes) {
+    var sorted = codes.slice().sort(function (a, b) { return SHAPE_ORDER[a] - SHAPE_ORDER[b]; });
+    return sorted.map(shapeChip).join(" ");
+  }
+
+  // ---------- Solver (base plan + trio overlay) ----------
+
+  function otherRooms(rooms, room) {
+    return rooms.filter(function (r) { return r !== room; });
+  }
+
+  function computeBasePlan(rooms, roomKey, roomInitial) {
+    var doubled = {}, doubledCount = 0, doubledRoom = null;
+    rooms.forEach(function (r) {
+      var init = roomInitial[r], k = roomKey[r];
+      doubled[r] = init.every(function (s) { return s === k; });
+      if (doubled[r]) { doubledCount++; doubledRoom = r; }
+    });
+
+    var sends = [];
+
+    if (doubledCount === 3) {
+      rooms.forEach(function (r) {
+        otherRooms(rooms, r).forEach(function (other) {
+          sends.push({ from: r, to: other, shape: roomKey[r] });
+        });
+      });
+    } else if (doubledCount === 1) {
+      var D = doubledRoom;
+      var others = otherRooms(rooms, D);
+      var O1 = others[0], O2 = others[1];
+      sends.push({ from: D, to: O1, shape: roomKey[D] });
+      sends.push({ from: D, to: O2, shape: roomKey[D] });
+      [[O1, O2], [O2, O1]].forEach(function (pair) {
+        var me = pair[0], other = pair[1];
+        sends.push({ from: me, to: other, shape: roomKey[me] });
+        sends.push({ from: me, to: D, shape: roomKey[other] });
+      });
+    } else if (doubledCount === 0) {
+      rooms.forEach(function (r) {
+        var held = roomInitial[r];
+        var dest = rooms.filter(function (x) {
+          return x !== r && held.indexOf(roomKey[x]) === -1;
+        })[0];
+        held.forEach(function (shape) {
+          sends.push({ from: r, to: dest, shape: shape });
+        });
+      });
+    } else {
+      throw new Error("Invalid initial configuration");
+    }
+    return sends;
+  }
+
+  function roleLabel(role) { return role.charAt(0).toUpperCase() + role.slice(1); }
+
+  function groupedStep(fromRoom, sendList, actorName, verb) {
+    var byDest = {};
+    sendList.forEach(function (s) {
+      byDest[s.to] = byDest[s.to] || [];
+      byDest[s.to].push(s.shape);
+    });
+    var dests = Object.keys(byDest);
+    var parts = dests.map(function (d) { return shapeChips(byDest[d]) + " to <strong>" + d + "</strong>"; });
+    return {
+      type: "action",
+      actor: fromRoom,
+      html: actorName + " " + verb + " " + parts.join(", and ") + "."
+    };
+  }
+
+  function solveTrio(rooms, roomKey, roomInitial, roleOfRoom, playerOfRoom) {
+    var roomOfRole = {};
+    rooms.forEach(function (r) { roomOfRole[roleOfRoom[r]] = r; });
+    var Dr = roomOfRole.distributor, Ds = roomOfRole.dissector, Rj = roomOfRole.rejoiner;
+    var nameDr = playerOfRoom[Dr], nameDs = playerOfRoom[Ds], nameRj = playerOfRoom[Rj];
+
+    var basePlan = computeBasePlan(rooms, roomKey, roomInitial);
+    function sendsFrom(room) { return basePlan.filter(function (s) { return s.from === room; }); }
+
+    var ownSends = sendsFrom(Dr);
+    var dissectorOwnSends = sendsFrom(Ds);
+    var rejoinerBaseSends = sendsFrom(Rj);
+
+    var ownTouchesDs = ownSends.some(function (s) { return s.to === Ds; });
+    var forwardSends = rejoinerBaseSends.filter(function (s) { return s.to !== Dr; });
+    var forwardExists = forwardSends.length > 0;
+
+    var prefix = [
+      {
+        type: "action",
+        actor: Rj,
+        html: nameRj + " sends " + shapeChips(roomInitial[Rj]) + " to <strong>" + Dr + "</strong>.",
+        detailHtml: nameDr + " now holds " + shapeChips(roomInitial[Dr].concat(roomInitial[Rj])) + "."
+      },
+      { type: "break", label: "Wait for rejoin" }
+    ];
+
+    var ownStep = ownSends.length ? groupedStep(Dr, ownSends, nameDr, "sends") : null;
+    var forwardStep = forwardExists ? groupedStep(Dr, forwardSends, nameDr, "forwards") : null;
+    var dissectorStep = dissectorOwnSends.length ? groupedStep(Ds, dissectorOwnSends, nameDs, "sends") : null;
+
+    var normalSteps, lateSteps, hasDistinctLate, scenario;
+
+    if (ownTouchesDs && forwardExists) {
+      scenario = "two-touch";
+      normalSteps = prefix.concat([ownStep, { type: "break", label: "Witness phase" }, forwardStep]);
+      lateSteps = prefix.concat([ownStep, forwardStep, { type: "break", label: "Late Witness phase", late: true }]);
+      hasDistinctLate = true;
+    } else if (!ownTouchesDs && forwardExists) {
+      scenario = "forward-only";
+      normalSteps = prefix.concat([ownStep, forwardStep, { type: "break", label: "Witness phase" }]);
+      lateSteps = prefix.concat([ownStep, forwardStep, { type: "break", label: "Witness phase" }]);
+      hasDistinctLate = false;
+    } else {
+      scenario = "own-only";
+      normalSteps = prefix.concat([ownStep, { type: "break", label: "Witness phase" }]);
+      var triggerShape = rejoinerBaseSends[0].shape;
+      lateSteps = prefix.concat([
+        ownStep,
+        {
+          type: "action",
+          actor: Dr,
+          html: nameDr + " sends " + shapeChip(triggerShape) + " to <strong>" + Ds + "</strong> to trigger the Witness phase (not otherwise needed there)."
+        },
+        { type: "break", label: "Late Witness phase", late: true },
+        {
+          type: "action",
+          actor: Ds,
+          html: nameDs + " sends the " + shapeChip(triggerShape) + " back to <strong>" + Dr + "</strong>."
+        }
+      ]);
+      hasDistinctLate = true;
+    }
+
+    if (dissectorStep) { normalSteps.push(dissectorStep); lateSteps.push(dissectorStep); }
+
+    // Compute final state by simulating the base plan (trio overlay only
+    // reorders/redirects the same underlying sends, so this is authoritative).
+    var final = {};
+    rooms.forEach(function (r) { final[r] = roomInitial[r].slice(); });
+    basePlan.forEach(function (s) {
+      var idx = final[s.from].indexOf(s.shape);
+      final[s.from].splice(idx, 1);
+      final[s.to].push(s.shape);
+    });
+
+    return {
+      scenario: scenario,
+      hasDistinctLate: hasDistinctLate,
+      normal: normalSteps.filter(Boolean),
+      late: lateSteps.filter(Boolean),
+      basePlan: basePlan,
+      finalState: final,
+      rooms: { Dr: Dr, Ds: Ds, Rj: Rj }
+    };
+  }
+
+  // ---------- State & UI ----------
+
+  var state = {
+    players: [
+      { name: "", role: "distributor" },
+      { name: "", role: "dissector" },
+      { name: "", role: "rejoiner" }
+    ],
+    roomPlayer: { Left: "", Middle: "", Right: "" },
+    roomKey: { Left: "S", Middle: "T", Right: "C" },
+    roomInitial: {
+      Left: ["S", "S"],
+      Middle: ["T", "C"],
+      Right: ["C", "T"]
+    }
+  };
+  var activeTab = "normal";
+
+  var playerRowsEl = document.getElementById("player-rows");
+  var initialRoomsEl = document.getElementById("initial-rooms");
+  var validationBox = document.getElementById("validation-box");
+  var generateBtn = document.getElementById("generate-btn");
+  var resultsCol = document.getElementById("results-col");
+
+  function buildPlayerRows() {
+    playerRowsEl.innerHTML = state.players.map(function (p, i) {
+      return '<div class="row three">' +
+        '<input type="text" placeholder="Player ' + (i + 1) + ' name" data-idx="' + i + '" class="player-name" value="' + escapeHtml(p.name) + '">' +
+        '<select data-idx="' + i + '" class="player-role"></select>' +
+        '</div>';
+    }).join("");
+
+    playerRowsEl.querySelectorAll(".player-role").forEach(function (sel) {
+      var idx = +sel.getAttribute("data-idx");
+      var takenByOthers = state.players.filter(function (_, j) { return j !== idx; }).map(function (p) { return p.role; });
+      sel.innerHTML = ROLES.map(function (r) {
+        var disabled = takenByOthers.indexOf(r) !== -1 ? " disabled" : "";
+        var selected = state.players[idx].role === r ? " selected" : "";
+        return '<option value="' + r + '"' + disabled + selected + '>' + roleLabel(r) + '</option>';
+      }).join("");
+    });
+
+    playerRowsEl.querySelectorAll(".player-name").forEach(function (inp) {
+      inp.addEventListener("input", function () {
+        state.players[+inp.getAttribute("data-idx")].name = inp.value;
+        buildRoomPlayerButtons();
+        validate();
+      });
+    });
+    playerRowsEl.querySelectorAll(".player-role").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var idx = +sel.getAttribute("data-idx");
+        var newRole = sel.value;
+        var conflictIdx = state.players.findIndex(function (p, j) { return j !== idx && p.role === newRole; });
+        if (conflictIdx !== -1) {
+          state.players[conflictIdx].role = state.players[idx].role;
+        }
+        state.players[idx].role = newRole;
+        buildPlayerRows();
+        buildRoomPlayerButtons();
+        validate();
+      });
+    });
+  }
+
+  function playerLabel(i) {
+    var n = state.players[i].name.trim();
+    return n ? n : "Player " + (i + 1);
+  }
+
+  function shapeBtnHtml(code, active, disabled) {
+    return '<button type="button" class="pill-btn shape-btn ' + code + (active ? " active" : "") + '" data-shape="' + code + '"' + (disabled ? " disabled" : "") + '>' +
+      shapeIcon(code) + shapeName(code) + '</button>';
+  }
+
+  function buildRoomPlayerButtons() {
+    ROOMS.forEach(function (room) {
+      var container = document.getElementById("room-btns-" + room);
+      var current = state.roomPlayer[room];
+      var takenElsewhere = ROOMS.filter(function (r) { return r !== room; }).map(function (r) { return state.roomPlayer[r]; });
+      container.innerHTML = state.players.map(function (p, i) {
+        var val = String(i);
+        var active = current === val;
+        var disabled = takenElsewhere.indexOf(val) !== -1 && !active;
+        return '<button type="button" class="pill-btn player-btn' + (active ? " active" : "") + '" data-idx="' + val + '"' + (disabled ? " disabled" : "") + '>' +
+          escapeHtml(playerLabel(i)) + ' <span class="role-hint">' + roleLabel(state.players[i].role) + '</span></button>';
+      }).join("");
+      container.querySelectorAll(".player-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var val = btn.getAttribute("data-idx");
+          state.roomPlayer[room] = (state.roomPlayer[room] === val) ? "" : val;
+          buildRoomPlayerButtons();
+          validate();
+        });
+      });
+    });
+  }
+
+  // Clicking a shape assigns it to that room. Since all three shapes must
+  // stay assigned one-per-room, if the clicked shape already belongs to
+  // another room, that room takes over whatever this room used to have --
+  // so setting any two rooms always auto-resolves the third.
+  function setRoomKey(room, newShape) {
+    var oldShape = state.roomKey[room];
+    if (oldShape === newShape) return;
+    var conflictRoom = ROOMS.filter(function (r) { return r !== room; })
+      .find(function (r) { return state.roomKey[r] === newShape; });
+    if (conflictRoom) state.roomKey[conflictRoom] = oldShape;
+    state.roomKey[room] = newShape;
+  }
+
+  function buildRoomKeyButtons() {
+    ROOMS.forEach(function (room) {
+      var container = document.getElementById("key-btns-" + room);
+      var current = state.roomKey[room];
+      container.innerHTML = SHAPES.map(function (s) {
+        return shapeBtnHtml(s.code, current === s.code, false);
+      }).join("");
+      container.querySelectorAll(".shape-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          setRoomKey(room, btn.getAttribute("data-shape"));
+          buildRoomKeyButtons();
+          refreshInitialFixedChips();
+          validate();
+        });
+      });
+    });
+  }
+
+  function buildInitialRooms() {
+    initialRoomsEl.innerHTML = ROOMS.map(function (room) {
+      return '<div class="room-block">' +
+        '<div class="room-title"><span class="room-dot"></span>' + room + '</div>' +
+        '<div class="init-shape-row">' +
+        '<div class="init-fixed-wrap"><div class="init-label">Always holds</div><span class="shape-chip locked" id="fixed-shape-' + room + '"></span></div>' +
+        '<div class="init-second-wrap"><div class="init-label">Second shape</div><div class="btn-group" id="second-btns-' + room + '"></div></div>' +
+        '</div>' +
+        '</div>';
+    }).join("");
+
+    refreshInitialFixedChips();
+    ROOMS.forEach(buildSecondShapeButtons);
+  }
+
+  function refreshInitialFixedChips() {
+    ROOMS.forEach(function (room) {
+      state.roomInitial[room][0] = state.roomKey[room];
+      var code = state.roomKey[room];
+      var el = document.getElementById("fixed-shape-" + room);
+      if (el) {
+        el.className = "shape-chip locked " + code;
+        el.innerHTML = shapeIcon(code) + shapeName(code);
+      }
+    });
+  }
+
+  function buildSecondShapeButtons(room) {
+    var container = document.getElementById("second-btns-" + room);
+    var current = state.roomInitial[room][1];
+    container.innerHTML = SHAPES.map(function (s) {
+      return shapeBtnHtml(s.code, s.code === current, false);
+    }).join("");
+    container.querySelectorAll(".shape-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        state.roomInitial[room][1] = btn.getAttribute("data-shape");
+        buildSecondShapeButtons(room);
+        validate();
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // ---------- Validation ----------
+
+  function validate() {
+    var errors = [];
+
+    var names = state.players.map(function (p, i) { return p.name.trim() || "Player " + (i + 1); });
+    if (state.players.some(function (p) { return !p.name.trim(); })) {
+      errors.push("Enter all three player names.");
+    }
+    var roomsFilled = ROOMS.every(function (r) { return state.roomPlayer[r] !== ""; });
+    if (!roomsFilled) errors.push("Assign a player to every room.");
+
+    var shapeCounts = { T: 0, S: 0, C: 0 };
+    ROOMS.forEach(function (r) {
+      state.roomInitial[r].forEach(function (s) { shapeCounts[s]++; });
+    });
+    SHAPES.forEach(function (s) {
+      if (shapeCounts[s.code] !== 2) {
+        errors.push("There must be exactly two " + s.name.toLowerCase() + "s across all rooms (currently " + shapeCounts[s.code] + ").");
+      }
+    });
+
+    ROOMS.forEach(function (r) {
+      if (state.roomInitial[r].indexOf(state.roomKey[r]) === -1) {
+        errors.push(r + " must hold at least one " + shapeName(state.roomKey[r]).toLowerCase() + " (its assigned shape).");
+      }
+    });
+
+    var box = validationBox;
+    if (errors.length === 0) {
+      box.innerHTML = '<div class="validation ok"><span class="icon">&#10003;</span><div>Setup is valid.</div></div>';
+      generateBtn.disabled = false;
+    } else {
+      box.innerHTML = '<div class="validation err"><span class="icon">&#9888;</span><div>Fix before generating:<ul>' +
+        errors.map(function (e) { return "<li>" + e + "</li>"; }).join("") + '</ul></div></div>';
+      generateBtn.disabled = true;
+    }
+    return errors.length === 0;
+  }
+
+  // ---------- Results rendering ----------
+
+  function renderResults() {
+    var roleOfRoom = {};
+    ROOMS.forEach(function (r) { roleOfRoom[r] = state.players[+state.roomPlayer[r]].role; });
+
+    var playerOfRoom = {};
+    ROOMS.forEach(function (r) { playerOfRoom[r] = playerLabel(+state.roomPlayer[r]); });
+
+    var playerOfRoomEscaped = {};
+    ROOMS.forEach(function (r) { playerOfRoomEscaped[r] = "<strong>" + escapeHtml(playerOfRoom[r]) + "</strong>"; });
+
+    var result = solveTrio(ROOMS, state.roomKey, state.roomInitial, roleOfRoom, playerOfRoomEscaped);
+
+    var recapHtml = '<div class="recap">' + ROOMS.map(function (room) {
+      return '<div class="room-card">' +
+        '<div class="rname">' + escapeHtml(playerOfRoom[room]) + ' &middot; ' + room +
+        '<span class="role-tag">' + roleLabel(roleOfRoom[room]) + '</span></div>' +
+        '<div class="rmeta">Assigned shape: ' + shapeName(state.roomKey[room]) + '</div>' +
+        '<div class="rshapes">' + shapeChips(state.roomInitial[room]) + '</div>' +
+        '</div>';
+    }).join("") + '</div>';
+
+    var tabsHtml = '<div class="tabs">' +
+      '<button class="tab-btn' + (activeTab === "normal" ? " active" : "") + '" data-tab="normal">Normal</button>' +
+      '<button class="tab-btn' + (activeTab === "late" ? " active" : "") + '" data-tab="late">Late</button>' +
+      '</div>';
+
+    var note = "";
+    if (!result.hasDistinctLate) {
+      note = '<div class="tab-note">Normal and Late are identical in this configuration &mdash; only one send from the distributor\'s side ever reaches the dissector\'s room, so there is no later moment to delay to.</div>';
+    } else if (result.scenario === "own-only" && activeTab === "late") {
+      note = '<div class="tab-note">The rejoiner\'s shapes were already exactly the distributor\'s key, so nothing needs forwarding. Late requires a spare, returned trigger send.</div>';
+    }
+
+    var steps = result[activeTab];
+    var stepsHtml = steps.map(function (step, i) {
+      if (step.type === "break") {
+        return '<div class="break-row' + (step.late ? " late" : "") + '">' +
+          '<div class="rail"><div class="diamond"></div></div>' +
+          '<div class="break-label">' + step.label + '</div></div>';
+      }
+      var detail = step.detailHtml ? '<div class="step-detail">' + step.detailHtml + '</div>' : "";
+      return '<div class="step">' +
+        '<div class="rail"><div class="dot"></div></div>' +
+        '<div class="body"><div class="step-text">' + step.html + '</div>' + detail + '</div>' +
+        '</div>';
+    }).join("");
+
+    var finalHtml = '<div class="final-state"><div class="fs-title">Final state &mdash; every room holds its two other shapes</div>' +
+      '<div class="final-grid">' + ROOMS.map(function (room) {
+        return '<div class="fcard"><div class="fname">' + room + ' &mdash; ' + escapeHtml(playerOfRoom[room]) + '</div><div class="fshapes">' + shapeChips(result.finalState[room]) + '</div></div>';
+      }).join("") + '</div></div>';
+
+    var timelineHtml = '<div class="timeline">' + stepsHtml + finalHtml + '</div>';
+
+    resultsCol.innerHTML = recapHtml + tabsHtml + note + timelineHtml;
+
+    resultsCol.querySelectorAll(".tab-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activeTab = btn.getAttribute("data-tab");
+        renderResults();
+      });
+    });
+  }
+
+  generateBtn.addEventListener("click", function () {
+    if (!validate()) return;
+    activeTab = "normal";
+    renderResults();
+  });
+
+  buildPlayerRows();
+  buildRoomKeyButtons();
+  buildRoomPlayerButtons();
+  buildInitialRooms();
+  validate();
+})();
+</script>
+
+</body>
+</html>
