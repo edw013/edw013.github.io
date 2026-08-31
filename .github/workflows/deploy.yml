@@ -13,6 +13,8 @@ jobs:
           submodules: true
       - name: Copy tft-flowchart into dist
         run: cp -r tft-flowchart dist/tft
+      - name: Copy verity into dist
+        run: cp -r verity dist/verity
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
