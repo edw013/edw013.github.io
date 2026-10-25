@@ -576,7 +576,7 @@
   </div>
 
   <footer class="note">
-    <strong>How the branch is chosen:</strong> the solver computes the standard base passing plan for the initial shape pattern, then checks whether the distributor's own sends and the rejoiner's forwarded shape(s) both touch the dissector's room. If so, Normal and Late are genuinely different (the witness marker just moves later). If only one of those ever touches the dissector's room, Normal and Late land identically&mdash;shown with a note. If neither does (the rejoiner's shapes are already the distributor's key), Late requires the distributor to send a spare shape to the dissector purely to trigger it, which the dissector then returns.
+    <strong>How the branch is chosen:</strong> the distributor sends their own shapes first. On Normal, the Witness phase comes right after those sends, and any shapes taken from the rejoiner go out afterward. On Late, when both that first pair and the forwarded shapes reach the dissector, the Witness phase waits until both are sent. When every room holds two different shapes, the phase sits between the pairs: two sends, Witness, two sends. When the rejoiner's shapes are already the distributor's key, nothing is forwarded on Normal. On Late the distributor splits that key by sending the dissector's shape to the rejoiner's room, and the dissector still sends only two shapes.
   </footer>
 </div>
 
@@ -718,31 +718,41 @@
       hasDistinctLate = true;
     } else if (!ownTouchesDs && forwardExists) {
       scenario = "forward-only";
-      normalSteps = prefix.concat([ownStep, forwardStep, { type: "break", label: "Witness phase" }]);
-      lateSteps = prefix.concat([ownStep, forwardStep, { type: "break", label: "Witness phase" }]);
+      // All individuals: both pairs leave after the rejoin. Witness sits
+      // between them, so it is two sends, then the phase, then two sends.
+      normalSteps = prefix.concat([ownStep, { type: "break", label: "Witness phase" }, forwardStep]);
+      lateSteps = prefix.concat([ownStep, { type: "break", label: "Witness phase" }, forwardStep]);
       hasDistinctLate = false;
     } else {
       scenario = "own-only";
+      // The rejoiner's shapes are already the distributor's key, so a normal
+      // round forwards nothing. On a late witness that key has to be split:
+      // send the dissector's shape to the rejoiner's room. The dissector's
+      // own two sends return it and finish the swap, so they still send two.
       normalSteps = prefix.concat([ownStep, { type: "break", label: "Witness phase" }]);
-      var triggerShape = rejoinerBaseSends[0].shape;
+      var splitShape = roomKey[Ds];
+      var dissectorLateStep = groupedStep(Ds, [
+        { from: Ds, to: Dr, shape: roomKey[Ds] },
+        { from: Ds, to: Rj, shape: roomKey[Dr] }
+      ], nameDs, "sends");
       lateSteps = prefix.concat([
         ownStep,
         {
           type: "action",
           actor: Dr,
-          html: nameDr + " sends " + shapeChip(triggerShape) + " to <strong>" + Ds + "</strong> to trigger the Witness phase (not otherwise needed there)."
+          html: nameDr + " sends " + shapeChip(splitShape) + " to <strong>" + Rj + "</strong>, splitting their key to trigger the Witness phase.",
+          detailHtml: nameDs + " still only sends two shapes."
         },
         { type: "break", label: "Late Witness phase", late: true },
-        {
-          type: "action",
-          actor: Ds,
-          html: nameDs + " sends the " + shapeChip(triggerShape) + " back to <strong>" + Dr + "</strong>."
-        }
+        dissectorLateStep
       ]);
       hasDistinctLate = true;
     }
 
-    if (dissectorStep) { normalSteps.push(dissectorStep); lateSteps.push(dissectorStep); }
+    if (dissectorStep) {
+      normalSteps.push(dissectorStep);
+      if (scenario !== "own-only") lateSteps.push(dissectorStep);
+    }
 
     // Compute final state by simulating the base plan (trio overlay only
     // reorders/redirects the same underlying sends, so this is authoritative).
@@ -1010,9 +1020,9 @@
 
     var note = "";
     if (!result.hasDistinctLate) {
-      note = '<div class="tab-note">Normal and Late are identical in this configuration &mdash; only one send from the distributor\'s side ever reaches the dissector\'s room, so there is no later moment to delay to.</div>';
+      note = '<div class="tab-note">Normal and Late are the same in this setup: two sends, the Witness phase, then the other two.</div>';
     } else if (result.scenario === "own-only" && activeTab === "late") {
-      note = '<div class="tab-note">The rejoiner\'s shapes were already exactly the distributor\'s key, so nothing needs forwarding. Late requires a spare, returned trigger send.</div>';
+      note = '<div class="tab-note">The distributor is already holding their key, so they split it up. The dissector still only sends two shapes.</div>';
     }
 
     var steps = result[activeTab];
